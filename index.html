@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>スライドショーJavaScript</title>
+    <link rel="stylesheet" href="css/style.min.css">
+</head>
+<body>
+    <div class="slider">
+        <ul id="ul-img">
+        </ul>
+        <ul id="ul-nav">
+        </ul>
+        <p class="arrow" id="arrow-right"></p>
+        <p class="arrow" id="arrow-left"></p>
+    </div> <!-- /.slider -->
+
+    <script>
+        let imgList = ['img/01.jpg', 'img/02.jpg', 'img/03.jpg', 'img/04.jpg'];
+
+        for(let i = 0; i < imgList.length; i ++) {
+            let list = document.createElement('li');
+            list.insertAdjacentHTML("afterbegin",`<img src="${imgList[i]}">`);
+            document.getElementById('ul-img').appendChild(list);
+            
+            let navList = document.createElement('li');
+            navList.setAttribute('data', i);
+            navList.style.backgroundImage = `url(${imgList[i]})`;
+            console.log(navList)
+            
+            document.getElementById('ul-nav').appendChild(navList);
+        }
+
+        const length = imgList.length - 1;
+        let slideImg = document.getElementById('ul-img').getElementsByTagName('li');
+        let navigation = document.getElementById('ul-nav').getElementsByTagName('li');
+        let nowIndex = 0;
+        // console.log(slideImg); => [li,li,li,li]
+        // スライドがアニメーション中(ドットナビが薄グレーから濃いグレーに徐々に変わる)か判断するフラグ
+        let isChanging = false;
+        // スライドのsetTimeout(フラグを下すまでかかる時間は0.6秒)を管理するタイマー
+        let timer;
+
+        slideImg[nowIndex].classList.add('show');
+        navigation[nowIndex].classList.add('current');
+        
+        function nextImg(val) {
+            if (isChanging === true) {
+		        return false;
+            }
+        
+            isChanging = true;
+        
+            slideImg[nowIndex].classList.remove('show');
+            navigation[nowIndex].classList.remove('current');
+            
+            nowIndex = val; //valは数値を引数として取る。数値とは下のindexのこと
+            
+            slideImg[nowIndex].classList.add('show');
+            navigation[nowIndex].classList.add('current');
+
+            timer = setTimeout(function() {
+                isChanging = false;
+            }, 600);
+        }
+
+        // nowIndexが0のときに左クリックを押したときの処理方法、indexが-1になったら3にしたい
+        document.getElementById('arrow-left').addEventListener('click', function() {
+            let index = nowIndex - 1;
+            if(index < 0) {
+                index = length;
+            }
+            nextImg(index);
+            // nowIndexが0,1,2,3のときにindexは-1,0,1,2になるので-1のときはindexは3になる
+        }, false);
+        
+        // nowIndexが3のときに右クリックをしたときの処理方法、indexが4になったら０に戻したい
+        document.getElementById('arrow-right').addEventListener('click', function() {
+            let index = nowIndex + 1;
+            if(index > length) {
+                index = 0;
+            }
+            nextImg(index);
+            // nowIndexが0,1,2,3のときにindexは1,2,3,4になるので4のときはindexは0になる.
+        }, false);
+
+        for(let i = 0; i < navigation.length; i ++) {
+            navigation[i].addEventListener('click', function () {
+                let index = Number(this.getAttribute('data'));
+                nextImg(index);
+            }, false)
+        }
+    </script>
+</body>
+</html>
